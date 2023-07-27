@@ -1,4 +1,10 @@
 const apiKey = 'cbf5ab5d';
+document.getElementById('searchInput').addEventListener('keydown', function(event) {
+    // console.log("it is the key, ",event.key);
+    if (event.key === 'Enter') {
+        searchMovies();
+    }
+});
 
 async function searchMovies() {
     const searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -16,20 +22,12 @@ async function searchMovies() {
 
         if (data.Response === 'True') {
             const movieResults = data.Search;
-            const ul = document.createElement('ul');
 
-            movieResults.forEach((movie) => {
-                if (movie.Title.toLowerCase().includes(searchInput)) {
-                    const li = document.createElement('li');
-                    li.textContent = movie.Title;
-                    ul.appendChild(li);
-                }
-            });
-
-            if (ul.childElementCount === 0) {
+            if (movieResults.length === 0) {
                 searchResultsDiv.innerHTML = 'No results found.';
             } else {
-                searchResultsDiv.appendChild(ul);
+                const movieCards = movieResults.map(createMovieCard);
+                movieCards.forEach(card => searchResultsDiv.appendChild(card));
             }
         } else {
             searchResultsDiv.innerHTML = 'No results found.';
@@ -38,4 +36,24 @@ async function searchMovies() {
         console.error('Error fetching data:', error);
         searchResultsDiv.innerHTML = 'An error occurred. Please try again later.';
     }
+}
+
+function createMovieCard(movie) {
+    const cardDiv = document.createElement('div');
+    cardDiv.classList.add('movie-card');
+
+    const titleElement = document.createElement('p');
+    titleElement.textContent = movie.Title;
+    titleElement.classList.add('movie-title');
+
+    const posterElement = document.createElement('img');
+    posterElement.src = (movie.Poster=="N/A")?"nothingToSee.png":movie.Poster;
+    posterElement.alt = movie.Title;
+    posterElement.classList.add('movie-poster');
+
+
+    cardDiv.appendChild(titleElement);
+    cardDiv.appendChild(posterElement);
+
+    return cardDiv;
 }
